@@ -28,6 +28,7 @@ def load_bitcoin_data(file_name='bitcoin_historical_price_daily.csv', data_folde
     df = pd.read_csv(file_path, index_col='Date', parse_dates=True)
     # Delete unwanted columns
     df = df.drop(columns=['Dividends', 'Stock Splits'], errors='ignore')
+    df.index = pd.to_datetime(df.index).tz_localize(None)  # Removing UTC
 
     return df
 
@@ -163,14 +164,15 @@ def create_event_features(df: pd.DataFrame):
 
     for date_str in halving_dates:
         # Mark the date of the event as 1
-        if date_str in df_index:
+        if date_str in df.index:
             df.loc[date_str, 'Halving_Event'] = 1
         else:
             # If exact date not found, try find the closest date
             # (e.g., if data is daily close, it might be the next day's open
             # This is a robust way to find the actual market day if the exact date is a weekend/holiday
             try:
-                closest_date = df.index[df.index.get_loc(date_str, method='nearest')]
+                closest_idx = df.index.get_indexer([pd.to_datetime(date_str)], method='nearest')[0]
+                closest_date = df.index[closest_idx]
                 df.loc[closest_date, 'Halving_Event'] = 1
                 # print(f"Warning: Exact halvind date {date_str} not found in index and no nearest date found")
             except KeyError:
