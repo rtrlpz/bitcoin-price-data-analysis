@@ -1,0 +1,17 @@
+
+# Jupyter Notebook Check Points
+*.ipynb
+/.ipynb_checkpoints
+/notebooks/.ipynb_checkpoints/
+
+
+# Virtual Enviroment folder(s)
+.venv
+
+# Word documents
+*.docx
+/docs
+
+# No longer needed folders
+notebooks/not_used
+
