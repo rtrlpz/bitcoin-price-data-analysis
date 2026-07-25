@@ -1,10 +1,17 @@
 import logging
+import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+
+# Ensure project root is on sys.path so quant_tool is importable
+_root = Path(__file__).resolve().parent.parent
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 from quant_tool.config import SYMBOLS, MIN_RISK_REWARD_RATIO
 from quant_tool.database.db_handler import (
