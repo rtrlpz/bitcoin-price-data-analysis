@@ -1,0 +1,5 @@
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+# quant_tool dependencies (installed separately or via parent venv):
+# pandas, numpy, ccxt, yfinance, pandas-ta, feedparser, nltk, python-dotenv, schedule

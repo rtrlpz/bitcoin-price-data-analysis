@@ -1,0 +1,28 @@
+# 001 — Task Checklist
+- [ ] Create `backend/__init__.py`
+- [ ] Create `backend/api/__init__.py`
+- [ ] Create `backend/api/main.py` with FastAPI app + CORS
+- [ ] Create `backend/api/routes/__init__.py`
+- [ ] Create `backend/api/routes/market_data.py`
+- [ ] Test: `GET /api/market-data/BTC/USDT?limit=10` returns valid JSON
+- [ ] Create `backend/api/routes/indicators.py`
+- [ ] Test: `GET /api/indicators/BTC/USDT?lookback=100` returns valid JSON
+- [ ] Create `backend/api/routes/signals.py`
+- [ ] Test: `GET /api/signals/BTC/USDT?limit=5` returns valid JSON
+- [ ] Create `backend/api/routes/sentiment.py`
+- [ ] Test: `GET /api/sentiment/BTC/USDT` returns valid JSON
+- [ ] Test: `GET /api/sentiment/BTC/USDT/score` returns `{"score": float}`
+- [ ] Create `backend/api/routes/portfolio.py`
+- [ ] Test: `GET /api/portfolio/summary` returns valid JSON
+- [ ] Test: `GET /api/portfolio/trades?status=open` returns valid JSON
+- [ ] Create `backend/api/routes/analytics.py`
+- [ ] Test: `POST /api/analytics/project` returns valid JSON
+- [ ] Test: `POST /api/analytics/risk` returns valid JSON
+- [ ] Test: `GET /api/analytics/freshness/BTC/USDT` returns valid JSON
+- [ ] Test: `GET /api/analytics/regime/BTC/USDT` returns valid JSON
+- [ ] Test: `GET /api/analytics/watchlist` returns array of all symbols
+- [ ] Create `backend/api/ws/__init__.py`
+- [ ] Create `backend/api/ws/prices.py` (WebSocket placeholder)
+- [ ] Create `backend/requirements-backend.txt`
+- [ ] Test: `GET /api/health` returns `{"status": "ok"}`
+- [ ] Test: CORS preflight `OPTIONS` request from localhost:5173 succeeds

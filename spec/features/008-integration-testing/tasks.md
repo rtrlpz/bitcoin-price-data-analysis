@@ -1,0 +1,20 @@
+# 008 — Task Checklist
+- [ ] Happy Path: Dashboard loads at localhost:5173
+- [ ] Happy Path: Chart renders candlestick + indicator overlays
+- [ ] Happy Path: Volume pane renders below price chart
+- [ ] Happy Path: Watchlist shows all symbols with prices
+- [ ] Happy Path: Signal card shows recent signals
+- [ ] Happy Path: Portfolio summary shows KPIs
+- [ ] Happy Path: Timeframe pills switch chart range
+- [ ] Edge Case: API offline → error states display
+- [ ] Edge Case: API comes online mid-session → recovery
+- [ ] Edge Case: Empty symbol → empty state displays
+- [ ] Edge Case: Browser resize → panels responsive
+- [ ] Edge Case: Sidebar toggle + layout presets
+- [ ] Console: No React warnings
+- [ ] Console: No 404/500 errors
+- [ ] Console: No unhandled promise rejections
+- [ ] Console: No CORS errors
+- [ ] Run `npm run build` — production build succeeds
+- [ ] Run uvicorn — API endpoints respond correctly
+- [ ] Final: Mark React Migration as complete in ROADMAP.md

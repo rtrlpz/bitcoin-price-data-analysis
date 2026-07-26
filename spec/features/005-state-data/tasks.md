@@ -1,0 +1,13 @@
+# 005 — Task Checklist
+- [ ] Create `frontend/src/hooks/useMarketData.ts`
+- [ ] Create `frontend/src/hooks/useIndicators.ts`
+- [ ] Create `frontend/src/hooks/useSignals.ts`
+- [ ] Create `frontend/src/hooks/useSentiment.ts`
+- [ ] Create `frontend/src/hooks/usePortfolio.ts`
+- [ ] Create `frontend/src/hooks/useWebSocket.ts` with auto-reconnect
+- [ ] Implement Zustand assetSlice: `selectedAsset`, `setAsset()`
+- [ ] Implement Zustand chartSlice: `timeframe`, `setTimeframe()`
+- [ ] Implement Zustand layoutSlice: `panelSizes`, `sidebarOpen`
+- [ ] Implement Zustand connectionSlice: `wsStatus`, `lastPing`
+- [ ] Verify full data flow hooks → components renders
+- [ ] Verify React Query devtools available in dev mode

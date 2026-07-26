@@ -1,0 +1,13 @@
+# 007 — Task Checklist
+- [ ] Add `ErrorBoundary` around chart panel
+- [ ] Add `ErrorBoundary` around watchlist panel
+- [ ] Add `ErrorBoundary` around portfolio panel
+- [ ] Add `ErrorBoundary` around signals panel
+- [ ] Audit and add skeleton loading states to all components
+- [ ] Create empty state UI for each panel type
+- [ ] Add connection health `StatusDot` in TopBar
+- [ ] Add `React.memo` to MetricCard, SignalCard, Badge, StatusDot
+- [ ] Add `useMemo` for derived data in chart components
+- [ ] Fix any React console warnings (keys, deps, etc.)
+- [ ] Create initial loading splash screen
+- [ ] Test with API offline — verify all panels show error states

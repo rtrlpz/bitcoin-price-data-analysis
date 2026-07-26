@@ -1,20 +1,55 @@
-# Jupyter Notebook Check Points
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.db
+.env
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv
+price-analysis/
+venv/
+
+# Node / React / Vite
+node_modules/
+frontend/dist/
+frontend/build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Jupyter (legacy)
 *.ipynb
 /.ipynb_checkpoints
 /notebooks/.ipynb_checkpoints/
 
-
-# Virtual Enviroment folder(s)
-.venv
-
-# Word documents
+# Word documents (legacy)
 *.docx
 /docs
 
-# No longer needed folders
+# Unused legacy directories
 notebooks/not_used
-
-# Pycharm config files
-/.idea
-src/__pycache__/
-
+src/
+sql/
+reports/

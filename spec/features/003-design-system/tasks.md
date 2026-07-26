@@ -1,0 +1,13 @@
+# 003 — Task Checklist
+- [ ] Create `frontend/src/components/LoadingSkeleton.tsx`
+- [ ] Create `frontend/src/components/MetricCard.tsx`
+- [ ] Create `frontend/src/components/WatchlistTable.tsx`
+- [ ] Create `frontend/src/components/SignalCard.tsx`
+- [ ] Create `frontend/src/components/TimeframePills.tsx`
+- [ ] Create `frontend/src/components/StatusDot.tsx`
+- [ ] Create `frontend/src/components/GuideCard.tsx`
+- [ ] Create `frontend/src/components/Badge.tsx`
+- [ ] Create `frontend/src/components/Panel.tsx`
+- [ ] Create `frontend/src/components/ErrorBoundary.tsx`
+- [ ] Verify all components handle loading/empty/error states
+- [ ] Verify `npm run build` compiles without errors

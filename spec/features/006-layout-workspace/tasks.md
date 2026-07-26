@@ -1,0 +1,12 @@
+# 006 — Task Checklist
+- [ ] Integrate `react-resizable-panels` into Workspace.tsx
+- [ ] Define layout presets (Default, Compact, Wide) in Zustand
+- [ ] Add sidebar resizing
+- [ ] Update TopBar with symbol selector component
+- [ ] Update TopBar with timeframe pills
+- [ ] Update TopBar with connection status indicator
+- [ ] Update Sidebar with watchlist
+- [ ] Update Sidebar with signal feed
+- [ ] Implement keyboard shortcuts
+- [ ] Add responsive CSS breakpoints (<1024px and <640px)
+- [ ] Test all presets + resize handles

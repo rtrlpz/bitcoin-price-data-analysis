@@ -1,137 +1,211 @@
-# Bitcoin Price Analysis EDA + Quant Trading Dashboard
+# AGENTS.md — Quant Trading Dashboard (React + FastAPI)
 
-## Quick Start (first time)
+Architectural guidelines, MCP tool integrations, and agent skill protocols for the project.
 
-```bash
-python run.py
+> **Current Phase:** Phase 1 — Backend API & Frontend Scaffold
+> **Next Step:** `ROADMAP.md` Phase 1
+
+---
+
+## 1. MCP Server & Tool Integrations
+
+The following MCP servers must be available for autonomous development:
+
+| Tool | Purpose | Required For |
+|------|---------|--------------|
+| **Context7** | Fetch up-to-date docs for React, FastAPI, Vite, TradingView Lightweight Charts, Zustand, React Query, TypeScript patterns | Every phase |
+| **GitHub** | Create issues, manage PRs, read/write repository state, check CI status | Commits, code review |
+| **WebFetch** | Read React/TradingView/TypeScript documentation URLs | Research during implementation |
+| **Figma** | Extract design tokens, spacing, color palette from UI mockups | Phase 2 (Design System) |
+| **Santiment** | Real-time crypto on-chain metrics, sentiment data | Phase 6+ (advanced features) |
+
+---
+
+## 2. Architecture Overview
+
+```
+backend/                          ← Python FastAPI server
+├── api/
+│   ├── main.py                   ← FastAPI app entry point
+│   ├── routes/
+│   │   ├── market_data.py        ← GET /api/market-data/:symbol
+│   │   ├── indicators.py         ← GET /api/indicators/:symbol
+│   │   ├── signals.py            ← GET /api/signals/:symbol
+│   │   ├── sentiment.py          ← GET /api/sentiment/:symbol
+│   │   ├── portfolio.py          ← GET/POST /api/portfolio/*
+│   │   └── analytics.py          ← POST /api/analytics/project, /risk
+│   └── ws/
+│       └── prices.py             ← WebSocket /ws/prices/:symbol
+├── quant_tool/                    ← Existing analytics engine (unchanged)
+└── requirements-backend.txt       ← Python dependencies
+
+frontend/                         ← React + TypeScript + Vite
+├── src/
+│   ├── components/               ← Reusable UI components
+│   │   ├── MetricCard.tsx
+│   │   ├── WatchlistTable.tsx
+│   │   ├── SignalCard.tsx
+│   │   ├── TimeframePills.tsx
+│   │   ├── StatusDot.tsx
+│   │   ├── GuideCard.tsx
+│   │   ├── Badge.tsx
+│   │   ├── Panel.tsx
+│   │   ├── LoadingSkeleton.tsx
+│   │   ├── ErrorBoundary.tsx
+│   │   └── Layout/
+│   │       ├── TopBar.tsx
+│   │       ├── Sidebar.tsx
+│   │       └── Workspace.tsx
+│   ├── charts/                   ← Chart components (TradingView LW)
+│   │   ├── TVChart.tsx
+│   │   ├── RSIPane.tsx
+│   │   └── VolumePane.tsx
+│   ├── hooks/                    ← React hooks for data
+│   │   ├── useMarketData.ts
+│   │   ├── useIndicators.ts
+│   │   ├── useSignals.ts
+│   │   ├── usePortfolio.ts
+│   │   ├── useSentiment.ts
+│   │   └── useWebSocket.ts
+│   ├── store/                    ← Zustand state management
+│   │   └── index.ts
+│   ├── api/                      ← API client (axios/fetch)
+│   │   └── client.ts
+│   ├── types/                    ← TypeScript type definitions
+│   │   └── index.ts
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── styles/
+│       ├── tokens.css             ← Design tokens (CSS custom properties)
+│       ├── globals.css            ← Base styles, skeleton animations
+│       └── components.css         ← Component-specific styles
+├── index.html
+├── package.json
+├── tsconfig.json
+├── tsconfig.node.json
+├── vite.config.ts
+└── .env.development              ← API_BASE_URL=http://localhost:8000
 ```
 
-The script will prompt you to create a virtual environment and install all dependencies, then launch the dashboard.
+**Key principle:** The `backend/quant_tool/` module is a **read-only dependency** — never modify it for frontend concerns. Only add new API routes that call into it.
 
-## Environment
+---
 
-- Virtual env at `.venv`. Activate: `.venv/Scripts/activate` (Windows) or `source .venv/bin/activate` (Unix)
-- All dependencies in root `requirements.txt`. Install: `pip install -r requirements.txt`
+## 3. Design System & Visual Standards
 
-## Project structure
+- **Palette:** Dark slate (`#0d1117` bg, `#161b22` surface, `#30363d` borders)
+- **Typography:** `'SF Mono','JetBrains Mono','Consolas',monospace` for all financial figures; `Inter` or system sans-serif for labels
+- **Colors:** Positive `#3fb950`, Negative `#f85149`, Warning `#d29922`, Info `#58a6ff`, Accent `#1f6feb`
+- **Spacing grid:** 2px / 4px / 6px / 8px / 12px / 16px / 24px / 32px
+- **All values defined as CSS custom properties in `tokens.css`** — no hardcoded values in components
+- Components use CSS Modules or inline `style` objects referencing token variables
+
+---
+
+## 4. Charting Standards (TradingView Lightweight Charts)
+
+- **Library:** `lightweight-charts` npm package (TradingView's official canvas charting library)
+- **Series types:** `CandlestickSeries` for price, `LineSeries` for indicators, `HistogramSeries` for volume
+- **Performance:** Canvas-rendered, 60fps, handles 10,000+ candles
+- **Crosshair:** Built-in crosshair with price/axis labels; sync across panes via chart callbacks
+- **Indicators:** Rendered as separate `LineSeries` overlays on the price pane (EMA, SMA, BB) or as individual panes (RSI, Volume)
+- **Timeframes:** Chart `timeScale().setVisibleRange()` to zoom to selected timeframe
+
+---
+
+## 5. State Management Standards
+
+- **Global state:** Zustand store (`frontend/src/store/index.ts`) — asset selection, timeframe, panel visibility, layout preset
+- **Server state:** React Query (`@tanstack/react-query`) — all API data fetching, caching, polling, and cache invalidation
+- **WebSocket:** Custom `useWebSocket` hook with auto-reconnect, exponential backoff, connection status
+- **Local UI state:** React `useState` / `useReducer` for component-internal state (accordion open/close, hover, etc.)
+
+---
+
+## 6. API Design Conventions
+
+| Method | Endpoint | Description | Cache |
+|--------|----------|-------------|-------|
+| GET | `/api/market-data/:symbol?limit=N` | OHLCV rows | 5 min |
+| GET | `/api/indicators/:symbol?lookback=N` | Indicator dataframe as JSON | 5 min |
+| GET | `/api/signals/:symbol?limit=N` | Recent signals | 2 min |
+| GET | `/api/sentiment/:symbol?limit=N` | Sentiment rows | 2 min |
+| GET | `/api/portfolio/summary` | Portfolio KPIs | 1 min |
+| GET | `/api/portfolio/trades?status=open|closed|all` | Trade history | 1 min |
+| GET | `/api/regime/:symbol` | Market regime | 5 min |
+| GET | `/api/freshness/:symbol` | Data age status | 5 min |
+| GET | `/api/watchlist` | All symbols prices+changes | 2 min |
+| POST | `/api/analytics/project` | Growth projection | — |
+| POST | `/api/analytics/risk` | Risk calculator | — |
+| WS | `/ws/prices/:symbol` | Real-time tick stream | — |
+
+**All responses:** `application/json`, snake_case keys, UTC ISO 8601 timestamps.
+
+---
+
+## 7. Autonomous Agent Skills
+
+### Skill 1: Documentation Retrieval (Context7)
+Before implementing any library feature, use Context7 to fetch current API docs for React, FastAPI, lightweight-charts, zustand, @tanstack/react-query, Vite, or TypeScript to prevent deprecation issues.
+
+### Skill 2: FastAPI Route Implementation
+1. Create routes in `backend/api/routes/`, one file per domain
+2. Use `APIRouter(prefix="...", tags=["..."])` pattern
+3. Return Pydantic models for auto-documented OpenAPI schema
+4. Call existing `quant_tool` functions — never duplicate logic
+5. Add `@st.cache_data`-equivalent server-side caching (optional, future)
+
+### Skill 3: React Component Implementation
+1. One component per file in `frontend/src/components/`
+2. Props typed with TypeScript interfaces, exported
+3. All CSS values reference tokens from `styles/tokens.css`
+4. Handle 4 states: default, loading (skeleton), empty (message), error (fallback)
+5. Unit-testable: pure props-in → JSX-out (no side effects)
+
+### Skill 4: TradingView Chart Integration
+1. Import `{ createChart, CandlestickSeries, LineSeries, HistogramSeries }` from `lightweight-charts`
+2. Create chart in `useEffect` on mount, destroy on unmount
+3. Use `useRef` for chart container div and chart instance
+4. Wire timeframe pills to `timeScale().setVisibleRange()`
+5. Handle resize via `ResizeObserver` on container div
+
+### Skill 5: Zustand Store Pattern
+1. Create slice-based store in `frontend/src/store/index.ts`
+2. Slices: `assetSlice`, `chartSlice`, `layoutSlice`, `connectionSlice`
+3. Each slice has state + actions, exported via hooks
+4. Actions are idempotent — calling same value twice produces no re-render
+
+### Skill 6: Spec-Driven Development
+1. Read `ROADMAP.md` first to identify current phase
+2. Read `spec/features/NNN-name/spec.md` for full spec
+3. Use `spec/features/NNN-name/tasks.md` as live checklist
+4. Mark `[ ]` → `[x]` as each task completes
+5. Commit with the EXACT message specified in ROADMAP.md
+
+---
+
+## 8. Spec-Driven Architecture
 
 ```
-run.py                     # Bootstrap launcher — creates venv, installs deps, launches dashboard
-requirements.txt           # All dependencies (Bitcoin EDA + quant_tool) merged into one
-
-src/                       # Bitcoin EDA notebooks helpers
-  __init__.py
-  data_processing.py
-  visualization_utils.py
-
-notebooks/                 # Bitcoin EDA notebooks (run in order 01→06)
-  01_extracting_bitcoin_price_yfinance.ipynb
-  02_eda_bitcoin_price.ipynb
-  03_time_series_forecasting.ipynb
-  04_reporting_insights.ipynb
-  05_dashboard_.ipynb
-  06_practical_aplications.ipynb
-
-data/
-  raw/bitcoin_historical_price_daily.csv
-  enriched_data/Enriched_bitcoin_price_analysis.csv
-
-quant_tool/                # Multi-Asset Quantitative Trading Engine
-  config.py                # Settings, risk parameters, API keys
-  scheduler.py             # Automated pipeline — backfill, hourly fetch, signals
-  app.py                   # Streamlit dashboard (3 tabs: Dashboard, Simulator, Portfolio)
-
-  database/
-    db_handler.py           # SQLite schema, upserts, portfolio state
-    data_quality.py         # Freshness, gap, and outlier detection
-
-  fetchers/
-    crypto_feed.py          # CCXT → Binance OHLCV with exponential backoff
-    stock_feed.py           # yfinance + Finnhub with retry logic
-    sentiment_feed.py       # RSS feedparser + NLTK VADER (keyword→symbol matching)
-
-  analytics/
-    indicators.py           # pandas-ta: RSI, EMA, ATR, Bollinger, MACD
-    signals.py              # Composite rule engine (technicals + sentiment)
-    backtester.py           # PaperTrader with 1% rule, ATR stops, friction
-    regime.py               # Market regime detection (ADX, MA slope, ATR ratio)
-    learning_calculator.py  # What-If calculator, risk sizing, asset guides
-    asset_guides.py         # Per-symbol trading guides
-
-  notifications/
-    telegram.py             # Telegram bot alert dispatcher
-
-sql/          # empty
-reports/      # empty
+ROADMAP.md                        ← Phases with prompts + commit messages
+spec/
+├── constitution/
+│   ├── mission.md                ← What/why/for whom
+│   ├── tech-stack.md             ← Technologies with rationale
+│   └── roadmap.md                ← High-level phase descriptions
+└── features/                      ← Per-phase specs
+    ├── 001-backend-api/
+    ├── 002-frontend-scaffold/
+    ├── 003-design-system/
+    ├── 004-chart-engine/
+    ├── 005-state-data/
+    ├── 006-layout-workspace/
+    ├── 007-production-polish/
+    └── 008-integration-testing/
 ```
 
-## Workflow
-
-1. **Notebooks must run in order** (01 → 06). `01` fetches data via yfinance; later notebooks depend on its output.
-2. **src/ modules** are designed to be imported from notebooks. `data_processing.load_bitcoin_data()` resolves the project root relative to its own location (`..` from `src/`), so notebooks in any directory can import it.
-3. **Dashboard**: `streamlit run quant_tool/app.py` (or `python run.py` for auto-setup)
-4. **Scheduler** (background data pipeline): `python -m quant_tool.scheduler`
-
-## Key dependencies
-
-All listed in root `requirements.txt`: `ta`, `pmdarima`, `xgboost`, `pandas-ta`, `ccxt`, `streamlit`, `nltk`, `yfinance`, `plotly`, `feedparser`, `schedule`.
-
-## quant_tool/ — Multi-Asset Quantitative Trading Engine
-
-### Key design decisions
-
-- **UTC-only** storage; local conversion only in Streamlit presentation layer.
-- **Idempotent upserts** via `INSERT OR REPLACE` on composite PKs `(timestamp, symbol)`.
-- **Exponential backoff** on all external API calls (CCXT, Finnhub, RSS, Telegram).
-- **Logging** via Python `logging` module to both console and `logs/app.log`.
-- **Risk rules**: 1% position sizing, ATR×1.5 stops, 1:2 min R:R, 3% daily loss circuit breaker, 10% max drawdown.
-- **Friction**: 0.1% slippage + 0.1% commission per trade baked into `PaperTrader`.
-- **No look-ahead bias**: indicators computed on sequential data; backtester executes at next available price.
-
-## Agent Skills & Standard Workflows
-
-### Skill 1: Adding a New Data Fetcher
-When asked to integrate a new data source (e.g., an exchange or API):
-1. **Create/Update Module:** Place the script inside `quant_tool/fetchers/`.
-2. **Resiliency Required:** Implement exponential backoff retry logic and catch all request exceptions.
-3. **Database Consistency:** Ensure all fetched timestamps are converted and stored strictly in **UTC**.
-4. **Idempotency:** Use SQLite upsert patterns (`INSERT OR REPLACE` on composite primary keys of `timestamp + symbol`) to avoid duplicate records.
-5. **Logging:** Log all API success/error metrics using Python's `logging` module to `logs/app.log`.
-
-### Skill 2: Implementing Technical Indicators & Analytics
-When adding new indicators or modifying analytics (`quant_tool/analytics/`):
-1. **Library Standard:** Use `pandas-ta` or vectorized `pandas` operations. Never write custom slow loops for rolling calculations.
-2. **Prevent Look-Ahead Bias:** Ensure calculations use sequential past data up to index $T$. Never let future values leak into historical rows.
-3. **Stationarity Check:** If applying statistical models, ensure inputs are transformed (e.g., log-returns) rather than raw price series.
-
-### Skill 3: Frontend UI / Streamlit Modifications
-When updating `quant_tool/app.py`:
-1. **Mobile Responsiveness:** Ensure layout blocks (`st.container`, `st.columns`) scale gracefully on mobile screens.
-2. **Contextual Education:** Always keep the interactive asset-specific guides and risk-control calculators accessible next to the primary charts.
-3. **No Business Logic in UI:** Keep all heavy calculation, database query, and simulation logic inside backend modules (`analytics/`, `database/`), importing clean data frames or results into `app.py`.
-
-### Skill 4: Financial Risk & Backtester Guardrails
-When modifying the paper trading simulator (`quant_tool/analytics/backtester.py`):
-1. **Enforce Risk Rules:** Position sizing must strictly follow the **1% risk rule**, using dynamic ATR-based stop-losses ($\text{ATR} \times 1.5$).
-2. **Friction Accounting:** Always deduct realistic execution overhead (0.1% slippage + 0.1% commission per round trip).
-3. **Circuit Breakers:** Ensure daily loss checks (3% limit) and maximum drawdown limits (10%) are evaluated before any simulated trade execution.
-
-### Running
-
-1. **First time**: `python run.py` (creates venv, installs deps, prompts before installing, then launches)
-2. **Subsequent runs**: `.venv/Scripts/activate` → `streamlit run quant_tool/app.py`
-3. **Background scheduler**: `python -m quant_tool.scheduler` (hourly fetch + signal evaluation)
-4. **Manual data seed**: `python -c "from quant_tool.fetchers.crypto_feed import fetch_all_crypto; fetch_all_crypto()"`
-5. Copy `quant_tool/.env` → add your Finnhub/Telegram API keys to enable live features.
-
-### Phase status
-
-| Phase | Module | Status |
-|-------|--------|--------|
-| 1 & 2 | Database + Fetchers | Done |
-| 3 | Analytics (indicators, signals) | Done |
-| 4 & 5 | Streamlit UI + Telegram | Done |
-| 6 | PaperTrader (backtester) | Done |
-| 7 | Data quality + regime detection + scheduler + Portfolio tab | Done |
-
-- No tests, linting, typechecking, or CI configuration.
+**Rules:**
+- Start at `ROADMAP.md` every session.
+- Complete phases in order — no skipping.
+- Commit exactly the message in ROADMAP.md when phase is done.
+- All new UI code goes in `frontend/src/`. Never touch `backend/quant_tool/` except to add API routes.

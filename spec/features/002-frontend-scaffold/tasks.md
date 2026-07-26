@@ -1,0 +1,15 @@
+# 002 — Task Checklist
+- [ ] Run `npm create vite@latest frontend -- --template react-ts`
+- [ ] Install axios, zustand, @tanstack/react-query, lightweight-charts, react-resizable-panels
+- [ ] Create `frontend/src/types/index.ts`
+- [ ] Create `frontend/src/api/client.ts`
+- [ ] Create `frontend/src/store/index.ts`
+- [ ] Create `frontend/src/styles/tokens.css`
+- [ ] Create `frontend/src/styles/globals.css`
+- [ ] Create `frontend/src/styles/components.css`
+- [ ] Create `frontend/src/components/Layout/TopBar.tsx`
+- [ ] Create `frontend/src/components/Layout/Sidebar.tsx`
+- [ ] Create `frontend/src/components/Layout/Workspace.tsx`
+- [ ] Update `frontend/src/App.tsx` to render Layout
+- [ ] Create `frontend/.env.development` with `VITE_API_BASE_URL=http://localhost:8000`
+- [ ] Verify `npm run dev` compiles without errors
